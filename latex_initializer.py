@@ -3,37 +3,75 @@ import os
 import shutil
 import pandas as pd
 import re
+import stat
 
-"""
-Funcionamento do programa:
-    1. O programa tem a localização do arquivo fonte latex.zip que guarda a pasta pré-construída de um arquivo LaTeX.
+def make_archive(source, destination):
+    """
+    Função de: http://www.seanbehan.com/how-to-use-python-shutil-make_archive-to-zip-up-a-directory-recursively-including-the-root-folder/
     
-    2. Recebe em linha de comando o endereço do destino, onde a pasta será criada.
+    Ele lida com o problema de zipar somente os arquivos dentro pasta, sem considerar a pasta em si.
     
-    3. O latex.zip é copiado para o destino
-    
-    4. O arquivo .zip é descompactado e a cópia é removida.
-"""
+    Com essa função quando eu zipar latex/ eu tenho latex.zip com a primeira pasta interna sendo a própria latex/
+    """
+    base = os.path.basename(destination)
+    name = base.split('.')[0]
+    format = base.split('.')[1]
+    archive_from = os.path.dirname(source)
+    archive_to = os.path.basename(source.strip(os.sep))
+    #print(source, destination, archive_from, archive_to)
+    shutil.make_archive(name, format, archive_from, archive_to)
+    shutil.move('%s.%s'%(name,format), destination)
+
+
 def build():
-    # Arquivo base do build
-    filename = r"latex.zip"
-    src = r"C:\Users\jfcmp\Coisas do Jota\Code\Python\Latex initializer" + "\\" + filename
-    
-    # Destino do Build
-    dest = r"C:\Users\jfcmp\Coisas do Jota\Code\Python\teste"
-    #dest = sys.argv[1]
+    """
+    Funcionamento do programa:
+        
+        1. O programa tem a localização do arquivo fonte latex.zip que guarda a pasta pré-construída de um arquivo LaTeX.
+        
+        2. Recebe em linha de comando o endereço do destino, onde a pasta será criada.
+        
+        3. O latex.zip é copiado para o destino
+        
+        4. O arquivo .zip é descompactado e a cópia é removida.
+    """
+    global SRC
+    global DEST
 
+    # Copiar a pasta latex_src para latex
+    latex_dir = SRC + r"\latex"
+    latex_src_dir =  SRC + r"\latex_src"
+    shutil.copytree(latex_src_dir, latex_dir, dirs_exist_ok = True)
+    
+    # Checar se há opções customizadas.
+    doc = input("Deseja criar um documento (p)adrão ou (c)ustomizado? (p|c) ")
+    if doc == "c":
+        predef = input("Qual o estilo predefinido? ")
+        
+        # Sobrescreve os arquivos em \latex\configs com os arquivos de predefs\<predef>\
+        configs_dir = latex_dir + r"\configs"
+        predef_dir = SRC + r"\predefs" + f"\\{predef}"
+        shutil.copytree(predef_dir, configs_dir, dirs_exist_ok = True)
+    
+    # Criar .zip
+    make_archive(latex_dir, latex_dir + ".zip")
+    os.system(f'rmdir /S /Q "{latex_dir}"')
+    
     # Cria uma cópia do arquivo base e descompacta o no destino.
-    shutil.copy(src,dest)
-    copied_file = dest + "\\" + filename
-    shutil.unpack_archive(copied_file, dest)
+    filename = "latex.zip"
+    shutil.copy(SRC + f"\\{filename}", DEST)
+    copied_file = DEST + f"\\{filename}"
+    shutil.unpack_archive(copied_file, DEST)
+    os.remove(latex_dir + ".zip")
     os.remove(copied_file)
 
 
-"""
-    Cria o arquivo packages.tex importando todos os pacotes presentes em packages.csv com os respectivos comentários e opções.
-"""
+
 def criar_packagesdottex(pacotes_tex):
+    """
+        Cria o arquivo packages.tex importando todos os pacotes presentes em packages.csv com os respectivos comentários e opções.
+    """
+    
     global SRC
     with open(pacotes_tex, "w", encoding="utf8") as packagestex:
         # Le o arquivo packages.csv como um Dataframe do pandas.
@@ -51,12 +89,14 @@ def criar_packagesdottex(pacotes_tex):
             else:
                 packagestex.write(r"\usepackage" + f"[{opcoes}]" + "{" + nome + "}\n\n")
 
-"""
+
+def checar_pacotes(conteudo):
+    """
     Dado o conteúdo de um arquivo packages.tex (string) será realizada uma comparação entre o conteúdo desse arquivo e o conteúdo do arquivo packages.csv
     
     Há casos onde o arquivo packages.csv pode estar defasado com relação ao packages.tex e, nesse cenário, será devolvido uma lista com os pacotes faltantes.  
-"""
-def checar_pacotes(conteudo):
+    """
+    
     global SRC
     # Todos os pacotes presentes no arquivo .tex
     usepackage = r"\\usepackage"
@@ -75,10 +115,12 @@ def checar_pacotes(conteudo):
     exclusivos_tex = pacotes_tex - pacotes_csv
     return list(exclusivos_tex)
 
-"""
-    Adiciona as informações do pacote "nome_pacote" para o arquivo .csv
-"""
+
 def adicionar_pacote_para_csv(nome_pacote, pacotes_tex):
+    """
+    Adiciona as informações do pacote "nome_pacote" para o arquivo .csv
+    """
+    
     global SRC
     nome, opcoes, comentario = "", "", ""
     with open(pacotes_tex, 'r', encoding="UTF8") as file:
@@ -96,10 +138,12 @@ def adicionar_pacote_para_csv(nome_pacote, pacotes_tex):
         file.write(f"\n{nome};{opcoes};{comentario}")
 
 
-"""
-    Atualiza o conteúdo do arquivo packages.csv com os novos pacotes incluídos no packages.tex que estejam ausentes no primeiro.
-"""
+
 def atualizar_pacotes_csv(pacotes_tex):
+    """
+    Atualiza o conteúdo do arquivo packages.csv com os novos pacotes incluídos no packages.tex que estejam ausentes no primeiro.
+    """
+    
     conteudo = ""
     with open(pacotes_tex, 'r', encoding="UTF8") as file:
         conteudo += file.read()
@@ -113,17 +157,19 @@ def atualizar_pacotes_csv(pacotes_tex):
         print("Os pacotes já estão atualizados.")
 
 if __name__ == "__main__":
-
-
     global SRC, DEST
+    
+    # Configurando os caminhos
     SRC = r"C:\Users\jfcmp\Coisas do Jota\Code\Python\Latex initializer"
     DEST = sys.argv[-1]
     if DEST == SRC:
         raise Exception("O aplicativo está sendo executada na própria pasta.")
     
     modo = sys.argv[1]
+    # BUILD
     if modo == "-build":
         build()
+    # UPDATE
     elif modo == "-update":
         pacotes_tex = f"{DEST}\\configs\\packages.tex"
         alvo_update = sys.argv[2]

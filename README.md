@@ -64,3 +64,7 @@ Para isso será necessário a execução do updater com o argumento `tex`.
 Há também como atualizar os pacotes no `.tex`, reescrevendo todo o seu conteúdo com base no `.csv`. Basta executar o updater com o argumento `tex`. No programa a rotina `criar_packagesdottex(pacotes_tex)` será executada.
 
 Aviso: o arquivo `.tex` será reescrito e, portanto, o conteúdo original será **perdido**!
+
+# Configurações
+
+Diversas configurações padrões podem ser utilizadas
