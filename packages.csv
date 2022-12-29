@@ -1,0 +1,24 @@
+nome_pacote;opcoes;comentarios
+geometry;;Customização da página
+fontspec;;Fontes em .OTF e .TTF
+unicode-math;;Símbolos Matemáticos em Unicode
+babel;english;Configurações de Língua
+graphicx;;Adição de Imagens
+bm;;Símbolos matemáticos em negrito
+svg;;Incluir gráficos .svg
+amsmath;;Funcionalidades matemáticas
+amsthm;;Criação e customização de ambientes de teorema
+xcolor;;Uso de cores
+xurl;;Melhoria do uso de \url
+hyperref;hyperfootnotes = false;Hyperlinks
+blindtext;;Criação de texto, documentos e fórmulas matemáticas para teste
+lipsum;;Criação de texto para teste
+float;;Controle de ambientes float, inclusão da opção H
+subcaption;;Legenda em subfiguras
+cleveref;;Referência cruzada customizada
+titlesec;;Customização de títulos
+wrapfig;;Colocar texto em volta de figuras
+caption;;Customização de legendas
+selnolig;;Remoção de ligaturas
+footmisc;symbol*;Customização de rodapé
+tcolorbox;skins;Inclusão de caixas customizáveis

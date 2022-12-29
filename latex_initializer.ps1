@@ -1,7 +1,7 @@
 # Criando a pasta
 echo "Initializing LaTeX document."
 
-python "C:\Users\jfcmp\Coisas do Jota\Code\Python\Latex initializer\latex_initializer.py" $pwd
+python "C:\Users\jfcmp\Coisas do Jota\Code\Python\Latex initializer\latex_initializer.py" -build $pwd
 
 echo "Done."
 
