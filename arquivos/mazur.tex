@@ -1,0 +1,135 @@
+% ==== LAYOUT PÁGINA ====
+\geometry{
+    paper=a4paper,
+    vmargin=3cm,
+    hmargin=2cm,
+    twocolumn=true
+}
+
+% ==== CORES ====
+\definecolor{mazurblue}{HTML}{0067b1}
+\definecolor{mazurdarkblue}{HTML}{00478d}
+\definecolor{mazurgray}{HTML}{b0afb5}
+\definecolor{mazurlightblue}{HTML}{f6fbfe}
+\definecolor{mazurlightgreen}{HTML}{F6FAF3}
+
+% ==== FONTES ====
+\setmainfont{Minion Pro}
+\setmathfont{XITS Math}
+\setsansfont{HelveticaNeueMedium.ttf}[
+    Path = C:/Users/jfcmp/Downloads/HelveticaNeue/,
+    BoldFont = HelveticaNeueBold.ttf
+]
+% Fonte usada no texto "SOLUTION" dentro das caixas de "Exercise"
+\newfontfamily\solutionfont{HelveticaNeueSolution.otf}[
+    Path = C:/Users/jfcmp/Coisas do Jota/Vault-1/Programas e Tutoriais/Configurações e Predefinições/Mais fontes/HelveticaNeue/
+]
+
+% ==== SÍMBOLOS ESPECIAIS ====
+% Define um comando "\checkmarkmazur" que coloca em, linha, um gráfico vetorizado de um checkmark.
+\newcommand{\checkmarkmazur}{\includesvg[height=.65\baselineskip,width=\baselineskip,keepaspectratio]{check.svg}}
+
+% ==== AMBIENTES ====
+
+% Define o ambiente de um exercício do mazur
+% Contador de exercícios (definido por seção)
+\newcounter{mazurex}[section]
+
+% Construção de um novo ambiente
+\newenvironment{mazurex}[1][]  % Nome, No Argumentos, Valor default do argumento #1
+{ % O que vem antes do conteúdo do ambiente.
+    \refstepcounter{mazurex} % incrementa o contador
+    \par\medskip\noindent % quebra a linha e dá um espaço vertical
+    {\bfseries\sffamily\color{mazurdarkblue} Exercise \thesection.\themazurex~#1} % escreve o rótulo (com numeração) e o argumento opcional (nome do exercício)
+    \rmfamily\par\medskip\noindent % quebra linha e dá um espaço
+    \begin{tcolorbox}[enhanced, 
+        frame hidden, % Desabilita as bordas
+        arc = 0mm, % Ângulos retos
+        top=1mm, bottom=1mm, right=1mm, left=1mm, % Margens
+        colback = mazurlightblue, % Cor do fundo
+        borderline horizontal={1.5pt}{1pt}{mazurgray}] % Adiciona retas
+    \small % texto dentro da caixa tem tamanho \small
+}
+{ % O que vem depois do conteúdo do ambiente.
+    \end{tcolorbox}\medskip
+}
+
+% Ambiente onde a questão será colocada (para usar dentro de mazurex).
+% É somente o texto, sem nada.
+\newenvironment{mazurq}{}{}
+
+% Ambiente de solução (para usar dentro de mazurex e depois de mazurq)
+\newenvironment{mazursol}
+{ % O que vem antes do texto da solução
+    \medskip
+    {\solutionfont % Fonte customizada
+    \addfontfeatures{LetterSpace=7.0} % Espaçamento da fonte
+    \color{mazurdarkblue}\scriptsize SOLUTION}} % Cor e Tamanho
+{}
+
+% Exemplo
+%   \begin{mazurex}[Throwing Dice]
+%       \begin{mazurq}
+%       ...
+%       \end{mazurq}
+%       
+%       \begin{mazursol}
+%       ... \checkmarkmazur
+%       \end{mazursol}
+%   \end{mazurex}
+
+% tcolorbox p questões com mãozinha
+\newtcolorbox[auto counter,number within=section]% Contador dentro de seção
+{questionbox}[1][]% Nome: questionbox e um argumento opcional.
+{
+enhanced,
+colback=mazurlightgreen, % Cor do Fundo
+frame empty, % Não tem moldura
+fonttitle=\qquad\sffamily\bfseries, % Fonte do título
+coltitle=black,
+title=\thetcbcounter, % Título é somente o contador da caixa
+detach title, % O título fica de fora da moldura
+before upper=\tcbtitle\ , % Antes do texto da parte superior
+fontupper=\small\ , % Fonte da parte superior
+#1, % Rótulo opcional
+arc=0mm, % Ângulos retos
+left=1mm, right=1mm, top=1mm, bottom=1mm, % Margens
+overlay={\node[anchor=south west,outer sep=0pt, yshift=-17pt,xshift=7pt] at (frame.north west) {\includesvg[height=6.5mm]{mazur_hand.svg}}; }} % Coloca a mãozinha
+
+
+% ==== HYPERLINKS ====
+\hypersetup{
+    colorlinks = true,
+    urlcolor = cyan,
+    linkcolor = mazurblue
+}
+
+% ==== TÍTULOS ====
+\titleformat{\section}[hang]{\color{mazurdarkblue}\sffamily\bfseries\LARGE}{\huge\thetitle}{.5cm}{}
+
+\titleformat{\subsection}[hang]{\color{mazurdarkblue}\sffamily\bfseries\Large}{\Large\thesubsection}{.1cm}{}
+
+% ==== REFERÊNCIAS CRUZADAS ====
+\crefformat{figure}{\footnotesize\sffamily\bfseries#2Figure \thesection.#1#3}
+\Crefformat{figure}{\small\sffamily\bfseries#2Figure \thesection.#1#3}
+
+% ==== FLOATS ====
+\floatplacement{figure}{H}
+
+% ==== PATH FIGURAS ====
+\graphicspath{{./imgs/}}
+
+% ==== LEGENDAS ====
+\DeclareCaptionFormat{myformat}{#1#2#3\par}
+\DeclareCaptionLabelFormat{mylabformat}{\color{mazurblue}\footnotesize\sffamily\bfseries #1 \thesection.#2}
+\DeclareCaptionTextFormat{mytextformat}{\footnotesize#1}
+\captionsetup{format=myformat,
+labelformat=mylabformat,
+textformat=mytextformat,
+labelsep=space,
+singlelinecheck = false,
+justification=raggedright}
+
+% ==== RODAPÉ ====
+\DefineFNsymbols*{myfnsymbols}{{\rotatebox[origin=c]{-30}{$\star$}}\ast}
+\setfnsymbol{myfnsymbols}
