@@ -65,8 +65,6 @@ def build():
     os.remove(latex_dir + ".zip")
     os.remove(copied_file)
 
-
-
 def criar_packagesdottex(pacotes_tex):
     """
         Cria o arquivo packages.tex importando todos os pacotes presentes em packages.csv com os respectivos comentários e opções.
@@ -155,6 +153,50 @@ def atualizar_pacotes_csv(pacotes_tex):
             adicionar_pacote_para_csv(nome_pacote, pacotes_tex)
     else:
         print("Os pacotes já estão atualizados.")
+
+def verificar_simetria_csv():
+    """
+    Verifica a simetria dos campos: incompatibilidade, importado_antes, importados_depois.
+    
+    1. Se incompatibilidade de A tem B, então incompatibilidade de B deve ter A.
+    2. Se importado_antes de A tem B, então importado_depois de B deve ter A.
+    3. Se importado_depois de A tem B, então importado_antes de B deve ter A.  
+    """
+    path = f"{SRC}\\packages.csv"
+    df = pd.read_csv(path, sep = ";")
+    df.fillna('', inplace=True) # subsitui nan por string vazia
+    # Checar simetria (1) incompatibilidades
+    for i in range(len(df)):
+        checar_simetria_incomp(i, df)
+    df.to_csv("new.csv",sep=';', index=False)
+
+
+def obter_lista_incomp(i, df):
+    """
+    Obtém a lista de incompatibilidades de índice i.
+    """
+    incomp_list = df.loc[i]["incompatibilidades"].split(",")
+    incomp_list = [incomp.strip() for incomp in incomp_list]
+    # Se o campo está vazio, ele devolve uma lista vazia.
+    if incomp_list == [""]:
+        incomp_list = []
+    return incomp_list
+
+def checar_simetria_incomp(i, df):
+    """
+    Checa a simetria de incompatibilidades de índice i.
+    """
+    # Lista de incompatibilidades do pacote atual
+    pacote_atual = df.loc[i]["nome_pacote"]
+    lista_incomp = obter_lista_incomp(i, df)
+    for incomp in lista_incomp:
+        idx = list(df["nome_pacote"]).index(incomp)
+        # Caso B esteja em A. Checa se A está em B e, no caso negativo, atualiza o dataframe.
+        if pacote_atual not in obter_lista_incomp(idx, df):
+            print(f"Problema nas incompatibildiades de {incomp}. Falta {pacote_atual}.")
+            nova_lista_incomp = obter_lista_incomp(idx, df)
+            nova_lista_incomp.append(pacote_atual)
+            df.loc[idx]["incompatibilidades"] = ",".join(nova_lista_incomp)
 
 if __name__ == "__main__":
     global SRC, DEST
